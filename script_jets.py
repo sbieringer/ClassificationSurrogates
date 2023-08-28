@@ -1,5 +1,6 @@
 ''' 
 This script does conditional image generation on MNIST, using a diffusion model
+...and was then dumbed down for a jet diffusion surrogate
 
 This code is modified from,
 https://github.com/cloneofsimo/minDiffusion
