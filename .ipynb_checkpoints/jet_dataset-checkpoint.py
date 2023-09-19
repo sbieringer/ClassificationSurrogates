@@ -46,7 +46,7 @@ class JetDataset(Dataset):
 
         #to be adapted
         def use_data(k):
-            use = not (k=='jet_p_top_ParT_full' or k=='jet_p_top_ParT_kin') 
+            use = not (k=='jet_p_top_ParT_full' or k=='jet_p_top_ParT_kin')
             return use
 
         #preprocess
