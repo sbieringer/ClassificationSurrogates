@@ -4,7 +4,7 @@
 ## SLURM JOB COMMANDS ###
 #########################
 #SBATCH --partition=maxgpu            ## or allgpu / cms / cms-uhh / maxgpu
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --nodes=1
 #SBATCH --job-name SurClass           # give job unique name
 #SBATCH --output ./run_files/training-%j.out      # terminal output
