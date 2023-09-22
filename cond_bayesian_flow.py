@@ -64,7 +64,7 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle
 lr=1e-4 #1e-3 for first 2500
 weight_decay= 0 #1e-5
 
-load_epoch = 2499 #0
+load_epoch = 5499 #0
 
 if load_epoch !=0:
 
@@ -77,7 +77,7 @@ else:
     loss_hist = np.array([])
 
 
-epochs = 2500+load_epoch+1
+epochs = 2000+load_epoch+1
 optim = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 model.train()
 
