@@ -26,10 +26,8 @@ class MLP(nn.Sequential):
 
         super().__init__(*layers[:-1])
 
-    def forward()
 
-
-class small_cond_MLP_model(nn.Module):
+class cond_MLP_model(nn.Module):
     def __init__(
         self,
         in_features: int,
@@ -37,42 +35,39 @@ class small_cond_MLP_model(nn.Module):
         activation: str = "ELU",
         dim_t: int = 6,
         dim_cond: int = 1,
+        n_nodes: list = [64,256,256,64]
     ):
+        
         super().__init__()
-        self.mlp1 = MLP(
+        self.mlps1 = MLP(
             in_features + dim_t + dim_cond,
-            out_features=64,
-            hidden_features=[64, 64],
+            out_features=n_nodes[0],
+            hidden_features=[n_nodes[0], n_nodes[0]],
             activation=activation,
-        )
-        self.mlp2 = MLP(
-            64 + dim_t + dim_cond,
-            out_features=256,
-            hidden_features=[256, 256],
-            activation=activation,
-        )
-        self.mlp3 = MLP(
-            256 + dim_t + dim_cond,
-            out_features=256,
-            hidden_features=[256, 256],
-            activation=activation,
-        )
-        self.mlp4 = MLP(
-            256 + dim_t + dim_cond,
+            )
+        self.mlps = [self.mlps1]
+
+        for i in range(len(n_nodes)-2):
+            setattr(self, f'mlp{i+1}', MLP(
+                n_nodes[i] + dim_t + dim_cond,
+                out_features=n_nodes[i+1],
+                hidden_features=[n_nodes[i+1], n_nodes[i+1]],
+                activation=activation,
+                ))
+            self.mlps.append(getattr(self, f'mlp{i+1}'))
+            
+        setattr(self, f'mlp{i+2}', MLP(
+            n_nodes[-2] + dim_t + dim_cond,
             out_features=out_features,
-            hidden_features=[64, 64],
+            hidden_features=[n_nodes[-1], n_nodes[-1]],
             activation=activation,
-        )
+            ))
+        self.mlps.append(getattr(self, f'mlp{i+2}'))
 
     def forward(self, t, x, cond):
-        x = torch.cat([t, x, cond], dim=-1)
-        x = self.mlp1(x)
-        x = torch.cat([t, x, cond], dim=-1)
-        x = self.mlp2(x)
-        x = torch.cat([t, x, cond], dim=-1)
-        x = self.mlp3(x)
-        x = torch.cat([t, x, cond], dim=-1)
-        x = self.mlp4(x)
+        for mlp in self.mlps:
+            x = torch.cat([t, x, cond], dim=-1)
+            x = mlp(x)
         return x
 
 class CNF(nn.Module):
@@ -86,7 +81,7 @@ class CNF(nn.Module):
         super().__init__()
 
         #self.net = MLP(2 * freqs + features, features, **kwargs)
-        self.net = small_cond_MLP_model(2 * freqs + features, features, dim_t=freqs, dim_cond=conds)
+        self.net = cond_MLP_model(features, features, dim_t=2*freqs, dim_cond=conds, **kwargs)
 
         self.register_buffer('freqs', torch.arange(1, freqs + 1) * torch.pi)
 
@@ -95,22 +90,22 @@ class CNF(nn.Module):
         t = torch.cat((t.cos(), t.sin()), dim=-1)
         t = t.expand(*x.shape[:-1], -1)
 
-        return self.net(torch.cat((t, x, cond), dim=-1))
+        return self.net(t, x, cond)
 
-    def encode(self, x: Tensor) -> Tensor:
-        return odeint(self, x, 0.0, 1.0, phi=self.parameters())
+    def encode(self, x: Tensor, cond: Tensor) -> Tensor:
+        return odeint(lambda t, x_tmp: self(t, x_tmp, cond), x, 0.0, 1.0, phi=self.parameters())
 
-    def decode(self, z: Tensor) -> Tensor:
-        return odeint(self, z, 1.0, 0.0, phi=self.parameters())
+    def decode(self, z: Tensor, cond: Tensor) -> Tensor:
+        return odeint(lambda t, x_tmp: self(t, x_tmp, cond), z, 1.0, 0.0, phi=self.parameters())
 
-    def log_prob(self, x: Tensor) -> Tensor:
+    def log_prob(self, x: Tensor,  cond: Tensor) -> Tensor:
         I = torch.eye(x.shape[-1]).to(x)
         I = I.expand(x.shape + x.shape[-1:]).movedim(-1, 0)
 
-        def augmented(t: Tensor, x: Tensor, ladj: Tensor) -> Tensor:
+        def augmented(t: Tensor, x: Tensor, cond: Tensor, ladj: Tensor) -> Tensor:
             with torch.enable_grad():
                 x = x.requires_grad_()
-                dx = self(t, x)
+                dx = self(t, x, cond)
 
             jacobian = torch.autograd.grad(dx, x, I, is_grads_batched=True, create_graph=True)[0]
             trace = torch.einsum('i...i', jacobian)
@@ -118,7 +113,7 @@ class CNF(nn.Module):
             return dx, trace * 1e-2
 
         ladj = torch.zeros_like(x[..., 0])
-        z, ladj = odeint(augmented, (x, ladj), 0.0, 1.0, phi=self.parameters())
+        z, ladj = odeint(augmented, (x, cond, ladj), 0.0, 1.0, phi=self.parameters())
 
         return Normal(0.0, z.new_tensor(1.0)).log_prob(z).sum(dim=-1) + ladj * 1e2
 
@@ -129,11 +124,11 @@ class FlowMatchingLoss(nn.Module):
 
         self.v = v
 
-    def forward(self, x: Tensor) -> Tensor:
+    def forward(self, x: Tensor, cond: Tensor) -> Tensor:
         t = torch.rand_like(x[..., 0]).unsqueeze(-1)
         z = torch.randn_like(x)
         y = (1 - t) * x + (1e-4 + (1 - 1e-4) * t) * z
         u = (1 - 1e-4) * z - x
 
-        return (self.v(t.squeeze(-1), y) - u).square().mean()
+        return (self.v(t.squeeze(-1), y, cond) - u).square().mean()
 
