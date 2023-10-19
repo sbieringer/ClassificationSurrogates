@@ -1,3 +1,9 @@
 data/
 jet_data/
 run_files/
+
+*.pdf
+*.pyc
+*.npy
+
+cuda_vis_dev.txt

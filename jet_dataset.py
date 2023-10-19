@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 
 class JetDataset(Dataset):
-    def __init__(self, path=None, mode=None, saved_path=None, only_pink=False):
+    def __init__(self, path=None, mode=None, saved_path=None, only_pink=False, del_context=[]):
         '''
         setup to return:
         - the conditioning features, normalised <one vector>
@@ -22,12 +22,12 @@ class JetDataset(Dataset):
         means = np.array([[ 5.00000000e-01,  6.23166764e+02,  7.92356175e-05, -3.36014642e-04,
         9.06941547e+02,  4.30536727e+01,  1.07352269e+02,  1.84643913e-01,
         8.86405459e-02,  4.94997103e-02,  3.85121050e-02,  1.37753736e-05,
-       -1.05942269e-04,  3.21420000e-02,  3.18712449e+02,  3.07605615e+01]],dtype='float32')
+       -1.05942269e-04,  3.21420000e-02,  3.18712449e+02,  3.07605615e+01]], dtype='float32')
         
         std = np.array([[5.00000000e-01, 1.09143856e+02, 8.75131335e-01, 1.81404007e+00,
        3.49699836e+02, 1.69453641e+01, 7.60797433e+01, 1.18626813e-01,
        5.76037338e-02, 2.98865181e-02, 2.16299983e-02, 6.10334641e-01,
-       1.28264871e+00, 4.24251893e+00, 3.29859845e+02, 1.92426810e+01]],dtype='float32')
+       1.28264871e+00, 4.24251893e+00, 3.29859845e+02, 1.92426810e+01]], dtype='float32')
 
         assert mode == 'train' or mode == 'test' or mode == 'val' or mode is None    
         if mode == 'train':
@@ -46,7 +46,7 @@ class JetDataset(Dataset):
 
         #to be adapted
         def use_data(k):
-            use = not (k=='jet_p_top_ParT_full' or k=='jet_p_top_ParT_kin') 
+            use = not (k=='jet_p_top_ParT_full' or k=='jet_p_top_ParT_kin' or k in del_context) 
             return use
 
         #preprocess
@@ -54,6 +54,10 @@ class JetDataset(Dataset):
             [np.array(self.data[k],dtype='float32')[...,np.newaxis] for k in self.data.keys() 
              if use_data(k)],axis=-1
         )
+
+        keys = [k for k in  self.data.keys() if not (k=='jet_p_top_ParT_full' or k=='jet_p_top_ParT_kin')]
+        means = np.array([[means[0,i] for i,k in enumerate(keys) if use_data(k)]])
+        std = np.array([[std[0,i] for i,k in enumerate(keys) if use_data(k)]])
         
         self.features = (self.features - means) / std
         self.truth = np.array(self.data['aux_genpart_pid'],dtype='float32')[...,np.newaxis]

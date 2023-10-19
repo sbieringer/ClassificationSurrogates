@@ -16,7 +16,13 @@ from jet_dataset import JetDataset
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 
-save_dir = './data/NF_2_jets15/'
+del_context = ['label_top', 'aux_genpart_eta', 'aux_genpart_phi', 'aux_genpart_pid', 'aux_genpart_pt',	'aux_truth_match']
+
+save_dir = './data/NF_jets15'
+for d in del_context:
+    save_dir += f'_{d}'
+save_dir += '/'
+
 if not os.path.exists(save_dir):
     os.mkdir(save_dir)
 
@@ -30,7 +36,8 @@ K = 10
 latent_size = 1
 hidden_units = 64
 hidden_layers = 2
-context_size = 16
+context_size = 16 - len(del_context)
+
 
 flows = []
 for i in range(K):
@@ -53,8 +60,8 @@ model = model.to(device)
 
 batch_size = 131072
 
-dataset = JetDataset("./jet_data",'train')
-dataset_val = JetDataset("./jet_data",'val')
+dataset = JetDataset("./jet_data",'train', del_context=del_context)
+dataset_val = JetDataset("./jet_data",'val', del_context=del_context)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 
 #####################
@@ -64,7 +71,7 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle
 lr=1e-4 #1e-3 for first 2500
 weight_decay= 0 #1e-5
 
-load_epoch = 5499 #0
+load_epoch = 0
 
 if load_epoch !=0:
 
@@ -77,7 +84,7 @@ else:
     loss_hist = np.array([])
 
 
-epochs = 2000+load_epoch+1
+epochs = 5000+load_epoch+1
 optim = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 model.train()
 
