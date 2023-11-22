@@ -14,7 +14,7 @@
 #SBATCH --constraint=P100
 #SBATCH --exclude=max-cmsg007
  
-##SBATCH --nodelist=max-cmsg[001-008]         # you can select specific nodes, if necessary
+##SBATCH --nodelist=max-cmsg001         # you can select specific nodes, if necessary
 
  
 #####################
@@ -27,7 +27,7 @@
 source ~/.bashrc
 
 # activate your conda environment the job should use
-conda activate bayesconda
+conda activate new_bayesconda_3
  
 # go to your folder with your python scripts
 cd /home/bierings/JetSurrogate/
@@ -35,4 +35,4 @@ cd /home/bierings/JetSurrogate/
 echo $(date +"%Y%m%d_%H%M%S") $SLURM_JOB_ID $SLURM_NODELIST $SLURM_JOB_GPUS  >> cuda_vis_dev.txt
 
 # run
-python3 cond_bayesian_flow_VBI.py
+python3 cond_flow_matching_AdamMCMC.py

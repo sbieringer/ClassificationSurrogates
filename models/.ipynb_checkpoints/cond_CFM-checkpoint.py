@@ -107,7 +107,7 @@ class CNF(nn.Module):
         I = torch.eye(x.shape[-1]).to(x)
         I = I.expand(x.shape + x.shape[-1:]).movedim(-1, 0)
 
-        def augmented(t: Tensor, x: Tensor, ladj: Tensor) -> Tensor:
+        def augmented(t: Tensor, x: Tensor, cond: Tensor, ladj: Tensor) -> Tensor:
             with torch.enable_grad():
                 x = x.requires_grad_()
                 dx = self(t, x, cond)
@@ -118,7 +118,7 @@ class CNF(nn.Module):
             return dx, trace * 1e-2
 
         ladj = torch.zeros_like(x[..., 0])
-        z, ladj = odeint(augmented, (x, ladj), 0.0, 1.0, phi=self.parameters())
+        z, ladj = odeint(augmented, (x, cond, ladj), 0.0, 1.0, phi=self.parameters())
 
         return Normal(0.0, z.new_tensor(1.0)).log_prob(z).sum(dim=-1) + ladj * 1e2
 

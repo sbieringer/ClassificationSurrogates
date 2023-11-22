@@ -59,6 +59,10 @@ class JetDataset(Dataset):
         means = np.array([[means[0,i] for i,k in enumerate(keys) if use_data(k)]])
         std = np.array([[std[0,i] for i,k in enumerate(keys) if use_data(k)]])
         
+        self.means_norm = means
+        self.std_norm = std
+        self.keys = keys
+
         self.features = (self.features - means) / std
         self.truth = np.array(self.data['aux_genpart_pid'],dtype='float32')[...,np.newaxis]
         self.truth = np.where(np.abs(self.truth) == 6, 1, np.zeros_like(self.truth))
