@@ -37,7 +37,10 @@ if not os.path.exists(save_dir):
 batch_size = 131072
 
 dont_use = ['jet_sdmass', 
-            'jet_tau1',	'jet_tau2',	'jet_tau3',	'jet_tau4',
+            'jet_tau1',	
+            'jet_tau2',	
+            'jet_tau3',	
+            'jet_tau4',
             'aux_genpart_eta', 'aux_genpart_phi', 'aux_genpart_pid', 'aux_genpart_pt', 'aux_truth_match']
 
 dataset = JetDataset("./jet_data",'train', del_context=dont_use)
@@ -67,7 +70,7 @@ ep = epochs-1
 with open(save_dir + f'losses_{ep}.npy', 'rb') as f:
     loss_hist = np.load(f)
 
-ep = 4000 #1500
+#ep = 4000 #1500
 model.load_state_dict(torch.load(save_dir + f"model_{ep}.pth"))
 print('loaded model from ' + save_dir + f"model_{ep}.pth")
 
@@ -80,17 +83,22 @@ from MCMC_Adam import MCMC_by_bp
 from time import time
 
 # %%
-MCMC_epochs = 100
+MCMC_epochs = 400
+MCMC_epochs_load = 596
 
 name_add = '/AdamMCMC_models_lambda50/'
 
 if not os.path.exists(save_dir + name_add):
     os.mkdir(save_dir + name_add)
     
+if MCMC_epochs_load != 0:
+    model.load_state_dict(torch.load(save_dir + name_add + f"AdamMCMC_model_{MCMC_epochs_load}.pth"))
+    print('loaded model from ' + save_dir + f"AdamMCMC_model_{MCMC_epochs_load}.pth")
+
 lr = 5e-6
 
 temp = 50
-sigma = .05
+sigma = 0.05
 
 loop_kwargs = {
              'MH': True, #this is a little more than x2 runtime
@@ -109,7 +117,7 @@ model.train()
 loss_hist, acc_hist, b_hist = np.array([]), np.array([]), np.array([])
 maxed_out_mbb_batches = 0
 
-for ep in range(MCMC_epochs):
+for ep in range(MCMC_epochs_load, MCMC_epochs_load+MCMC_epochs):
     optim.zero_grad()
     
     i = 0

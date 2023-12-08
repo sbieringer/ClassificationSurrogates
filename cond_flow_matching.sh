@@ -27,7 +27,7 @@
 source ~/.bashrc
 
 # activate your conda environment the job should use
-conda activate new_bayesconda
+conda activate new_bayesconda_3
  
 # go to your folder with your python scripts
 cd /home/bierings/JetSurrogate/
