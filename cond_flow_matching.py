@@ -50,10 +50,10 @@ batch_size = 131072
 
 dont_use = [#'jet_pt', 'jet_eta', 'jet_phi',	'jet_energy', 'jet_nparticles',	'jet_sdmass',
             #'jet_sdmass', 
-            #'jet_tau1',	
-            #'jet_tau2',	
-            #'jet_tau3',	
-            #'jet_tau4',
+            'jet_tau1',	
+            'jet_tau2',	
+            'jet_tau3',	
+            'jet_tau4',
             'aux_genpart_eta', 'aux_genpart_phi', 'aux_genpart_pid', 'aux_genpart_pt', 'aux_truth_match']
 
 dataset = JetDataset("./jet_data",'train', del_context=dont_use)
@@ -64,8 +64,8 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle
 ### Define the Normalizing Flow ###
 ###################################
 
-c_factor = 1
-lr_decay = 0.9999 #'cosine' #1 #0.999
+c_factor = 50
+lr_decay = 1 #'cosine' #1 #0.999
 approximate_gaussian_inference = True
 
 if approximate_gaussian_inference:
@@ -107,7 +107,7 @@ train = True
 lr = 1e-3
 weight_decay = 0 
 
-epochs = 7500
+epochs = 4000
 
 if train:
     cfm_loss = FlowMatchingLoss(model)
