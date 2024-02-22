@@ -18,3 +18,4 @@ cond_flow_matching_AdamMCMC.sh
 cond_flow_matching.sh
 test.ipynb
 script_jets.py
+output_dists.ipynb
