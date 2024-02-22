@@ -1,9 +1,11 @@
 data/
 jet_data/
 run_files/
+.ipynb_checkpoints/
 
 *.pdf
 *.pyc
 *.npy
+*.sh
 
 cuda_vis_dev.txt
