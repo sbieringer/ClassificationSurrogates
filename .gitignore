@@ -14,5 +14,7 @@ cuda_vis_dev.txt
 
 cond_flow_matching_AdamMCMC.ipynb
 cond_flow_matching.ipynb
+cond_flow_matching_AdamMCMC.sh
+cond_flow_matching.sh
 test.ipynb
 script_jets.py
