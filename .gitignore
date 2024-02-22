@@ -9,3 +9,8 @@ run_files/
 *.sh
 
 cuda_vis_dev.txt
+
+cond_flow_matching_AdamMCMC.ipynb
+cond_flow_matching.ipynb
+test.ipynb
+script_jets.py

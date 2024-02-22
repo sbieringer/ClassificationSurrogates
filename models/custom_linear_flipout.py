@@ -3,11 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from torch.distributions.normal import Normal
-from torch.distributions.uniform import Uniform
-from bayesian_torch.layers.base_variational_layer import BaseVariationalLayer_
 from bayesian_torch.layers.flipout_layers.linear_flipout import LinearFlipout
-from torch.quantization.qconfig import QConfig
 
 
 class custom_LinearFlipout(LinearFlipout):

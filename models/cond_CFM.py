@@ -1,5 +1,8 @@
-### code from https://gist.github.com/francois-rozet/fd6a820e052157f8ac6e2aa39e16c1aa slightly modded by Cedric Ewen###
+''' code from https://gist.github.com/francois-rozet/fd6a820e052157f8ac6e2aa39e16c1aa 
 
+slightly modded by Sebastian Bieringer to include condtional probabilities
+
+'''
 import torch
 import torch.nn as nn
 from torch import Tensor

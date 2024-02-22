@@ -3,8 +3,6 @@ The dataset wrapper.
 
 '''
 
-
-
 from torch.utils.data import Dataset
 import pandas as pd
 import numpy as np
@@ -92,7 +90,3 @@ class JetDataset(Dataset):
         import gzip
         with gzip.open(filename, 'wb') as f:
             pickle.dump(self.__dict__, f)
-
-#from sklearn.metrics import roc_curve
-#
-#jd = JetDataset("./jet_data",'val')

@@ -1,30 +1,20 @@
-# %% [markdown]
-# # Testing the 'Flow Matching in 100 LOC'-code and augmenting it with Bayesian Methods
+# Script for running AdamMCMC on a pretrained model
 
 # %%
 import torch
 import torch.nn as nn
-from torch import Tensor
-from torch.distributions import Normal
 
-import sys
-sys.path.append('./models/')
-
-from cond_CFM import CNF, FlowMatchingLoss
+from models.cond_CFM import CNF
+from models.MCMC_Adam import MCMC_by_bp
 
 import numpy as np
-import normflows as nf
 import os
 from tqdm import tqdm
 from typing import *
-from zuko.utils import odeint
 
 from jet_dataset import JetDataset
 
-from typing import *
-from zuko.utils import odeint
-
-from sklearn.metrics import roc_curve, auc
+from time import time
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
@@ -70,17 +60,10 @@ ep = epochs-1
 with open(save_dir + f'losses_{ep}.npy', 'rb') as f:
     loss_hist = np.load(f)
 
-#ep = 4000 #1500
 model.load_state_dict(torch.load(save_dir + f"model_{ep}.pth"))
 print('loaded model from ' + save_dir + f"model_{ep}.pth")
 
 model.eval()
-
-
-sys.path.append('../MCMC_by_backprob/src/')
-from MCMC_Adam import MCMC_by_bp
-
-from time import time
 
 # %%
 MCMC_epochs = 400
@@ -103,7 +86,7 @@ sigma = 0.05
 loop_kwargs = {
              'MH': True, #this is a little more than x2 runtime
              'verbose': False,
-             'sigma_adam_dir': sigma, #not sure this helps
+             'sigma_adam_dir': sigma, 
 }
 
 optim = torch.optim.Adam(model.parameters(), lr=lr)#, betas=(0.99,0.99999))
@@ -139,15 +122,11 @@ for ep in range(MCMC_epochs_load, MCMC_epochs_load+MCMC_epochs):
             maxed_out_mbb_batches  = 0
         if maxed_out_mbb_batches > 100:
             print('MBB sampling is not convergent, reinitializing the chain')
-            AdamMCMC.start = True #This is a hot fix to not get the optimizer stuck to often
+            AdamMCMC.start = True 
 
         scheduler.step()
         acc_hist = np.append(acc_hist, a.to('cpu').data.numpy())
         b_hist = np.append(b_hist, b)
-
-        # i+=1
-        # if i == 3:
-        #     break
         
     # Log loss
     loss_hist = np.append(loss_hist, loss().to('cpu').data.numpy())
