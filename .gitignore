@@ -1,7 +1,9 @@
 data/
+figs/
 jet_data/
 run_files/
 .ipynb_checkpoints/
+__pycache__/
 
 *.pdf
 *.pyc
