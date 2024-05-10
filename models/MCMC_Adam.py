@@ -40,7 +40,7 @@ def log_normal(diff_eval, len2_diff_eval, sigma, diff_adam=None, len2_diff_adam=
             print(f'ADAM: difference vector {diff_adam} squared length of difference vector {len2_diff_adam}, length: {torch.sqrt(len2_diff_adam)}')
 
     difference_prod = torch.inner(diff_eval, diff_adam) if diff_adam is not None else 0
-    directional_factor = 1/(sigma**4*sigma_adam_dir**2 + sigma**2*len2_diff_adam) if diff_adam is not None else 0
+    directional_factor = 1/(sigma**4/sigma_adam_dir**2 + sigma**2*len2_diff_adam) if diff_adam is not None else 0
     
     log_norm = -d*torch.log(sigma) if diff_adam is None else -d*torch.log(sigma)-torch.log((sigma_adam_dir/sigma)**2*len2_diff_adam+1)  #should include a 2\pi**d/2 but that cancels anyhow 
     

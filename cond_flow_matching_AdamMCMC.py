@@ -86,7 +86,7 @@ sigma = 0.05
 loop_kwargs = {
              'MH': True, #this is a little more than x2 runtime
              'verbose': False,
-             'sigma_adam_dir': sigma, 
+             'sigma_adam_dir': torch.sum(torch.Tensor([x.numel() for x in self.model.parameters()]))/sigma, 
 }
 
 optim = torch.optim.Adam(model.parameters(), lr=lr)#, betas=(0.99,0.99999))
