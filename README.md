@@ -1,6 +1,6 @@
 # Classification Surrogates
 
-[Classifier Surrogates](arxiv.org/abs/2402.15558) are generative deep learning models trained to estimate the classification results from a neural network using unaccessible detector-level information from accessible high-level jet observables (Reconstruction-level), parton- or particle-level inforamtion. To this end a surrogate needs to
+[Classifier Surrogates](https://arxiv.org/abs/2402.15558) are generative deep learning models trained to estimate the classification results from a neural network using unaccessible detector-level information from accessible high-level jet observables (Reconstruction-level), parton- or particle-level inforamtion. To this end a surrogate needs to
   * reproduce the classification correctly,
   * include uncertainty introduced through the stochasticity of the detector simulation,
   * and indicate sparse regions of training data, as well as unknown imputs through large uncertainties.
@@ -19,13 +19,15 @@ The <code>models/</code> directory contains all necessary definitions for defini
 
 ## Basic Usage
 
+First, download the processed JetClass dataset from [here](https://syncandshare.desy.de/index.php/s/5M56tM5KYAjq95o). For more information on the data take a look at Joschka's [repository](https://github.com/joschkabirk/jetclass-top-qcd)
+
 For Training of a (Variational Inference Bayes-) CFM run <code>cond_flow_matching.py</code>. To subsequnetly sample weights starting at the point estimate using AdamMCMC, we provide <code>cond_flow_matching_AdamMCMC.py</code>. 
 
 <code>evalution.ipynb</code> and <code>plotting.ipynb</code> can be used to generate the plots of the paper.
 
 ## Citation
 
-For more details see our publication ["Classifier Surrogates: Sharing AI-based Searches with the World"](arxiv.org/abs/2402.15558)
+For more details see our publication ["Classifier Surrogates: Sharing AI-based Searches with the World"](https://arxiv.org/abs/2402.15558)
 
 ```bibtex
 @article{Bieringer_2024_surrogates,
