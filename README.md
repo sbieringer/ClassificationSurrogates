@@ -19,7 +19,7 @@ The <code>models/</code> directory contains all necessary definitions for defini
 
 ## Basic Usage
 
-First, download the processed JetClass dataset from [here](https://syncandshare.desy.de/index.php/s/5M56tM5KYAjq95o). For more information on the data take a look at Joschka's [repository](https://github.com/joschkabirk/jetclass-top-qcd)
+First, start a new directory `./jet_data` and download the processed JetClass dataset from [here](https://syncandshare.desy.de/index.php/s/5M56tM5KYAjq95o) into the folder. For more information on the data take a look at Joschka's [repository](https://github.com/joschkabirk/jetclass-top-qcd).
 
 For Training of a (Variational Inference Bayes-) CFM run <code>cond_flow_matching.py</code>. To subsequnetly sample weights starting at the point estimate using AdamMCMC, we provide <code>cond_flow_matching_AdamMCMC.py</code>. 
 
